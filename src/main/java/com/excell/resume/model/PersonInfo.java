@@ -1,9 +1,10 @@
 package com.excell.resume.model;
 
 import java.awt.Image;
+import java.util.Arrays;
 
 public class PersonInfo {
-    String photo;
+    byte[] photo;
     String name;
     String email;
     String address;
@@ -13,7 +14,7 @@ public class PersonInfo {
     public PersonInfo() {
     }
 
-    public PersonInfo(String photo, String name, String email, String address, String phoneNumber,
+    public PersonInfo(byte[] photo, String name, String email, String address, String phoneNumber,
         String birthDate) {
         this.photo = photo;
         this.name = name;
@@ -23,11 +24,11 @@ public class PersonInfo {
         this.birthDate = birthDate;
     }
 
-    public String getPhoto() {
+    public byte[] getPhoto() {
         return photo;
     }
 
-    public void setPhoto(String photo) {
+    public void setPhoto(byte[] photo) {
         this.photo = photo;
     }
 
@@ -74,7 +75,7 @@ public class PersonInfo {
     @Override
     public String toString() {
         return "PersonInfo{" +
-            "photo='" + photo + '\'' +
+            "photo=" + Arrays.toString(photo) +
             ", name='" + name + '\'' +
             ", email='" + email + '\'' +
             ", address='" + address + '\'' +
