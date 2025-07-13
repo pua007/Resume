@@ -4,10 +4,17 @@ import com.excell.resume.model.Career;
 import com.excell.resume.model.Education;
 import com.excell.resume.model.PersonInfo;
 import com.excell.resume.view.ResumeView;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Scanner;
+import javax.imageio.ImageIO;
 import javax.sql.rowset.RowSetFactory;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -148,5 +155,38 @@ public class ResumeController {
         FileOutputStream fileOut = new FileOutputStream("resume.xlsx");
         workbook.write(fileOut);
         workbook.close();
+
+
+        Row dataRow = sheet1.createRow(7 );
+        String photoFileName = "kidong.jpg";
+
+        //try를 걸어준 이유는 만일 파일이 없거나 잘못된 이름일 경우 예외처리를 하기위해
+        try(InputStream photoStream = new FileInputStream(photoFileName)) {//파일에서 읽어오는 빨때를 꼽는 동작
+            BufferedImage originalImage = ImageIO.read(photoStream);//그 빨대로 이지를 읽어오는 부분, ImageIO.read()의 반환타입 BufferedImage이다
+
+            //증명사진 크기로 이미지를 조절한다(가로: 35mm, 세로: 45mm)
+            int newwidth = (int) (35 * 2.83465);
+            int newHeight = (int) (45 * 2.83465);
+            //원래 사진의 크기를 조절해서 만드는거
+            Image resizedImage = originalImage.getScaledInstance(newwidth, newHeight, Image.SCALE_SMOOTH);//getScaledInstance()는 이미지를 리사이즈하는 메서드인데, 결과를 Image 타입으로 돌려줘서 다시 BufferedImage로 바꿔야 해.
+            //비어 있는 새 그림판을 만드는 거 크기는 방금 계산한 크기로 투명 배경도 만들수있음
+            BufferedImage resizedBufferedImage = new BufferedImage(newwidth, newHeight, BufferedImage.TYPE_4BYTE_ABGR);
+            //새 그림판에 그림을 글릴 수 있는 연필을 준비하는 것
+            Graphics2D g2d = resizedBufferedImage.createGraphics();
+            //새그림을 그림판에 그리는 해위 (그림판이름, 왼쪽 위 모서리부터 그림을 그리하는 뜻,?)
+            g2d.drawImage(resizedImage, 0, 0, null);
+            //다 그렸으면 연필을 정리하고 치우라는 것
+            g2d.dispose();
+
+            //조절된 이미지를 바이트배열로 변환합니다
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(resizedBufferedImage, "jpg", baos);
+            byte[] imageBytes = baos.toByteArray();
+            int imageIndex = workbook.addPicture(imageBytes, Workbook.PICTURE_TYPE_JPEG);
+        }catch (IOException ex){
+            ex.printStackTrace();
+        }
+
     }
+
 }
